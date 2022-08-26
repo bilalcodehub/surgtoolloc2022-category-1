@@ -5,7 +5,7 @@ SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 ./build.sh
 
 VOLUME_SUFFIX=$(dd if=/dev/urandom bs=32 count=1 | md5sum | cut --delimiter=' ' --fields=1)
-MEM_LIMIT="4g"  # Maximum is currently 30g, configurable in your algorithm image settings on grand challenge
+MEM_LIMIT="30g"  # Maximum is currently 30g, configurable in your algorithm image settings on grand challenge
 
 docker volume create surgtoolloc_trial-output-$VOLUME_SUFFIX
 
@@ -30,7 +30,7 @@ docker run --rm \
         -v surgtoolloc_trial-output-$VOLUME_SUFFIX:/output/ \
         -v $SCRIPTPATH/test/:/input/ \
         -v $SCRIPTPATH/:/tmp/ \
-        python:3.9-slim python -c "import json, sys; f1 = json.load(open('/output/surgical-tool-presence.json')); f2 = json.load(open('/tmp/expected_output_classification.json')); sys.exit(f1 != f2);"
+        python:3.9-slim python -c "import json, sys; f1 = json.load(open('/output/surgical-tool-presence.json')); f2 = json.load(open('/tmp/surgical-tool-presence.json')); sys.exit(f1 != f2);"
 
 if [ $? -eq 0 ]; then
     echo "Tests successfully passed..."

@@ -2,4 +2,4 @@
 
 ./build.sh
 
-docker save surgtoolloc_trial | gzip -c > surgtoolloc_trial.tar.gz
+docker save surgtoolloc_trial | gzip -c > TZ_surgtoolloc_algo_container.tar.gz
