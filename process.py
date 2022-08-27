@@ -18,20 +18,25 @@ import os
 # %% ../surgtoolloc2/09_inference.ipynb 5
 execute_in_docker = True
 
-# %% ../surgtoolloc2/09_inference.ipynb 6
+# %% ../surgtoolloc2/09_inference.ipynb 7
 class VideoLoader():
     def load(self, *, fname):
+        print('INSIDE Video Loader LOAD function.')
         path = Path(fname)
         print(path)
         if not path.is_file():
-            raise IOError(f"Could not load {fname} using {self.__class__.__qualname__}.")
+            raise IOError(
+                f"Could not load {fname} using {self.__class__.__qualname__}."
+            )
+            #cap = cv2.VideoCapture(str(fname))
+        #return [{"video": cap, "path": fname}]
         return [{"path": fname}]
 
-    # only path valid
+# only path valid
     def hash_video(self, input_video):
         pass
 
-# %% ../surgtoolloc2/09_inference.ipynb 7
+
 class UniqueVideoValidator(DataFrameValidator):
     """
     Validates that each video in the set is unique
@@ -44,7 +49,10 @@ class UniqueVideoValidator(DataFrameValidator):
             raise ValidationError("Column `video` not found in DataFrame.")
 
         if len(set(hashes)) != len(hashes):
-            raise ValidationError("The videos are not unique, please submit a unique video for each case.")
+            raise ValidationError(
+                "The videos are not unique, please submit a unique video for "
+                "each case."
+            )
 
 # %% ../surgtoolloc2/09_inference.ipynb 9
 class Surgtoolloc_det(DetectionAlgorithm):
@@ -64,7 +72,7 @@ class Surgtoolloc_det(DetectionAlgorithm):
         # loading ensemble learner
         print('-Loading key artefacts...')
 
-        ensem_path=Path('/opt/algorithm/models/cls') if execute_in_docker else Path("test/algorithm/cls")
+        ensem_path=Path('/opt/algorithm/models') if execute_in_docker else Path("test/models")
 
         self.ensem_learner=[load_learner(m, cpu=True) for m in ensem_path.ls() if m.suffix=='.pkl']
         print(f'-{len(self.ensem_learner)} mutli-class classification models have been detected & loaded.')
@@ -94,7 +102,8 @@ class Surgtoolloc_det(DetectionAlgorithm):
         src=Path('/images') if execute_in_docker else Path("./test/images/")
         for i in get_image_files(src): os.remove(i) 
         
-        # read the video file    
+        # read the video file  
+        print(f'{str(self._input_path/Path(video_file).name)} READY FOR EXTRACTION')
         cap = cv2.VideoCapture(str(self._input_path/Path(video_file).name))
         
         while True:
@@ -114,10 +123,12 @@ class Surgtoolloc_det(DetectionAlgorithm):
         tool_boolean_dict = {i: False for i in self.tool_list}
         single_output_dict = {**slice_dict, **tool_boolean_dict}
         return single_output_dict
-
+    
+    
     def process_case(self, *, idx, case):
-
+        print('Inside process_case()...')
         # Input video would return the collection of all frames (cap object)
+        print(case)
         input_video_file_path = case #VideoLoader.load(case)
         # Detect and score candidates
         scored_candidates = self.predict(case.path) #video file > load evalutils.py

@@ -4,6 +4,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl
 
+RUN groupadd -r algorithm && useradd -m --no-log-init -r -g algorithm algorithm
+
+RUN mkdir -p /opt/algorithm /input /output /images /opt/algorithm/models /opt/algorithm/models/cls /opt/algorithm/models/seg \
+    && chown algorithm:algorithm /opt/algorithm /input /output /images /opt/algorithm/models /opt/algorithm/models/cls /opt/algorithm/models/seg /opt
+
+RUN apt-get update
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ffmpeg libsm6 libxext6 --no-install-recommends
+
+USER algorithm
+
 # get miniconda
 # this yields strange warnings, but ultimately works
 RUN curl -fsSL -v -o ~/miniconda.sh -O  "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
@@ -15,26 +26,15 @@ RUN chmod +x ~/miniconda.sh && \
     /opt/conda/bin/conda install -y python=3.10 && \
     /opt/conda/bin/conda install -y pytorch=1.11.0 torchvision=0.12.0 torchaudio=0.11.0 cudatoolkit=11.3 -c pytorch
 
-ENV PATH=/opt/conda/bin:$PATH
-
-RUN conda install -c fastchan fastai
-
-RUN groupadd -r algorithm && useradd -m --no-log-init -r -g algorithm algorithm
-
-RUN mkdir -p /opt/algorithm /input /output /images /test /opt/algorithm/models \
-    && chown algorithm:algorithm /opt/algorithm /input /output /images /test /opt/algorithm/models /opt/conda
-
-RUN apt-get update
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ffmpeg libsm6 libxext6 --no-install-recommends
-
-USER algorithm
+ENV PATH /opt/conda/bin:$PATH
 
 WORKDIR /opt/algorithm
 
 ENV PATH="/home/algorithm/.local/bin:${PATH}"
 
-RUN python -m pip install --user -U scikit-image
+RUN python -m pip install --user -U pip
+
+RUN python -m conda install -c fastchan fastai
 
 COPY --chown=algorithm:algorithm requirements.txt /opt/algorithm/
 
@@ -48,7 +48,9 @@ COPY --chown=algorithm:algorithm test/ /opt/algorithm/input/
 
 COPY --chown=algorithm:algorithm output/ /output/
 
-COPY --chown=algorithm:algorithm models/ /opt/algorithm/models/
+COPY --chown=algorithm:algorithm models/cls/ /opt/algorithm/models/cls/
+
+COPY --chown=algorithm:algorithm models/seg/ /opt/algorithm/models/seg/
 
 RUN chmod -R 777 /input /output /images /opt/algorithm
 
