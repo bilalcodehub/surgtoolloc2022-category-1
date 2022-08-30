@@ -16,7 +16,7 @@ docker run --rm \
         --network="none" \
         --cap-drop="ALL" \
         --security-opt="no-new-privileges" \
-        --shm-size="128m" \
+        --shm-size="256m" \
         --pids-limit="256" \
         -v $SCRIPTPATH/test/:/input/ \
         -v surgtoolloc_trial-output-$VOLUME_SUFFIX:/output/ \
@@ -27,7 +27,7 @@ docker run --rm \
         python:3.9-slim cat /output/surgical-tool-presence.json | python3 -m json.tool
 
 docker run --rm \
-        -v surgtoolloc_trial-output-$VOLUME_SUFFIX:/output/ \
+        -v $SCRIPTPATH:/output/ \
         -v $SCRIPTPATH/test/:/input/ \
         -v $SCRIPTPATH/:/tmp/ \
         python:3.9-slim python -c "import json, sys; f1 = json.load(open('/output/surgical-tool-presence.json')); f2 = json.load(open('/tmp/surgical-tool-presence.json')); sys.exit(f1 != f2);"
@@ -39,3 +39,5 @@ else
 fi
 
 docker volume rm surgtoolloc_trial-output-$VOLUME_SUFFIX
+
+

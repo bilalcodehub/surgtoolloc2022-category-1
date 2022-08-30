@@ -44,12 +44,10 @@ COPY --chown=algorithm:algorithm process.py /opt/algorithm/
 
 COPY --chown=algorithm:algorithm ml_utils.py /opt/algorithm/
 
-COPY --chown=algorithm:algorithm test/ /opt/algorithm/input/
+COPY --chown=algorithm:algorithm test/ /input/
 
 COPY --chown=algorithm:algorithm output/ /output/
 
 COPY --chown=algorithm:algorithm models/ /opt/algorithm/models/
-
-RUN chmod -R 777 /input /output /images /opt/algorithm
 
 ENTRYPOINT python -m process $0 $@
