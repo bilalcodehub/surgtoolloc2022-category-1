@@ -42,7 +42,7 @@ RUN python -m pip install --user -rrequirements.txt
 
 COPY --chown=algorithm:algorithm process.py /opt/algorithm/
 
-COPY --chown=algorithm:algorithm ml_utils.py /opt/algorithm/
+COPY --chown=algorithm:algorithm ml_utils2.py /opt/algorithm/
 
 COPY --chown=algorithm:algorithm test/ /input/
 

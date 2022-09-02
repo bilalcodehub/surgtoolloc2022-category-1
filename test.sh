@@ -16,7 +16,7 @@ docker run --rm \
         --network="none" \
         --cap-drop="ALL" \
         --security-opt="no-new-privileges" \
-        --shm-size="256m" \
+        --shm-size="128m" \
         --pids-limit="256" \
         -v $SCRIPTPATH/test/:/input/ \
         -v surgtoolloc_trial-output-$VOLUME_SUFFIX:/output/ \

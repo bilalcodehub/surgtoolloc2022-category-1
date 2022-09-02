@@ -5,7 +5,7 @@ __all__ = ['execute_in_docker', 'fname_has_int', 'VideoLoader', 'UniqueVideoVali
 
 # %% ../surgtoolloc2/09_inference.ipynb 3
 from fastai.vision.all import *
-from ml_utils import *
+from ml_utils2 import *
 from skimage.measure import label,regionprops,find_contours
 from evalutils import DetectionAlgorithm
 from evalutils.validators import (UniquePathIndicesValidator, DataFrameValidator)
@@ -94,7 +94,7 @@ class Surgtoolloc_det(DetectionAlgorithm):
         # loading ensemble learner
         print('-Loading models & tools dictionary.')
         
-        self.cpu=False
+        self.cpu=True
         ensem_path=Path('/opt/algorithm/models') if execute_in_docker else Path("test/models")
 
         self.ensem_learner=[load_learner(m, cpu=self.cpu) for m in ensem_path.ls() if m.suffix=='.pkl']
@@ -202,9 +202,8 @@ class Surgtoolloc_det(DetectionAlgorithm):
         tta_res=[]
         prs_items=[]
         for learn in self.ensem_learner:
-            learn.dls.bs=8
-            learn.dls.n_workers=2
-            tta_res.append(learn.get_preds(dl=learn.dls.test_dl(fs)))
+            test_dl = learn.dls.test_dl(fs, num_workers=0)
+            tta_res.append(learn.tta(dl=test_dl))
             if len(prs_items)<1:
                 prs_items=learn.dl.items
             if not self.cpu:
